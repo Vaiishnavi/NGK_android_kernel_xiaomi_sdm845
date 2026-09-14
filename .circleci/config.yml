@@ -17,13 +17,13 @@ jobs:
            git clone --depth=1 https://github.com/${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME} -b ${CIRCLE_BRANCH} .
 
       - restore_cache:
-          key: clang-toolchain-v1-{{ checksum ".circleci/build.sh" }}
+          key: clang-toolchain-v2-{{ checksum ".circleci/build.sh" }}
 
       - run:
           command: bash .circleci/build.sh
 
       - save_cache:
-          key: clang-toolchain-v1-{{ checksum ".circleci/build.sh" }}
+          key: clang-toolchain-v2-{{ checksum ".circleci/build.sh" }}
           paths:
             - clang
 
