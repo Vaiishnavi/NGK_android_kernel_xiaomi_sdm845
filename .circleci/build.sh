@@ -2,14 +2,13 @@
 
 set -o pipefail
 # Many parts of this script were taken from @REIGNZ, @idkwhoiam322 and @raphielscape . Huge thanks to them.
-
+ROOT=$(pwd)
 # KernelSu
-curl -LSs "https://raw.githubusercontent.com/SukiSU-Ultra/SukiSU-Ultra/main/kernel/setup.sh" | bash -s builtin
+git submodule add -b legacy-susfs-v2 https://github.com/sidex15/KernelSU-Next.git KernelSU
 
-# Cleaning
-rm -rf out
-make clean
-make mrproper
+cd $ROOT/drivers
+ln -sf $ROOT/KernelSU/kernel kernelsu
+cd $ROOT
 
 # Some general variables
 PHONE="dipper"
