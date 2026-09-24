@@ -6,9 +6,9 @@
 curl -LSs "https://raw.githubusercontent.com/ReSukiSU/ReSukiSU/main/kernel/setup.sh" | bash
 
 # Cleaning
-rm -rf out
-make clean
-make mrproper
+#rm -rf out
+#make clean
+#make mrproper
 
 # Some general variables
 PHONE="dipper"
