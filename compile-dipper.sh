@@ -2,25 +2,32 @@
 
 # Many parts of this script were taken from @REIGNZ, @idkwhoiam322 and @raphielscape . Huge thanks to them.
 
+# KernelSu
+curl -LSs "https://raw.githubusercontent.com/ReSukiSU/ReSukiSU/main/kernel/setup.sh" | bash
+
+# Cleaning
+rm -rf out
+make clean
+make mrproper
+
 # Some general variables
 PHONE="dipper"
 ARCH="arm64"
 SUBARCH="arm64"
 DEFCONFIG=nogravity-dipper_defconfig
-#DEFCONFIG=beryllium_defconfig
 COMPILER=clang
 LINKER=""
-COMPILERDIR="/media/pierre/Expension/Android/PocophoneF1/Kernels/Proton-Clang"
+COMPILERDIR="$(pwd)/clang"
 
 # Outputs
-mkdir out/outputs
-mkdir out/outputs/${PHONE}
-mkdir out/outputs/${PHONE}/SE
-mkdir out/outputs/${PHONE}/NSE
+mkdir -p zone_dipper
+mkdir -p out/outputs
+mkdir -p out/outputs/${PHONE}
+mkdir -p out/outputs/${PHONE}/NSE
 
 # Export shits
-export KBUILD_BUILD_USER=Pierre2324
-export KBUILD_BUILD_HOST=G7-7588
+export KBUILD_BUILD_USER=Zone
+export KBUILD_BUILD_HOST=D543
 
 # Speed up build process
 MAKE="./makeparallel"
@@ -37,27 +44,19 @@ Build () {
 PATH="${COMPILERDIR}/bin:${PATH}" \
 make -j$(nproc --all) O=out \
 ARCH=${ARCH} \
+LLVM=1 LLVM_IAS=1 \
 CC=${COMPILER} \
 CROSS_COMPILE=${COMPILERDIR}/bin/aarch64-linux-gnu- \
 CROSS_COMPILE_ARM32=${COMPILERDIR}/bin/arm-linux-gnueabi- \
-LD_LIBRARY_PATH=${COMPILERDIR}/lib
-}
-
-Build_lld () {
-PATH="${COMPILERDIR}/bin:${PATH}" \
-make -j$(nproc --all) O=out \
-ARCH=${ARCH} \
-CC=${COMPILER} \
-CROSS_COMPILE=${COMPILERDIR}/bin/aarch64-linux-gnu- \
-CROSS_COMPILE_ARM32=${COMPILERDIR}/bin/arm-linux-gnueabi- \
-LD=ld.${LINKER} \
+LD=ld.lld \
+HOSTCC=clang \
+HOSTLDFLAGS="-fuse-ld=lld" \
 AR=llvm-ar \
 NM=llvm-nm \
 OBJCOPY=llvm-objcopy \
 OBJDUMP=llvm-objdump \
 STRIP=llvm-strip \
-ld-name=${LINKER} \
-KBUILD_COMPILER_STRING="Proton Clang"
+LD_LIBRARY_PATH=${COMPILERDIR}/lib 2>&1 | tee log.txt
 }
 
 # Make defconfig
@@ -71,23 +70,6 @@ else
 fi
 
 # Build starts here
-if [ -z ${LINKER} ]
-then
-    #Start with SE
-    cp arch/arm64/boot/dts/qcom/SE_NSE/SE/* arch/arm64/boot/dts/qcom/
-    Build
-else
-    Build_lld
-fi
-
-if [ $? -ne 0 ]
-then
-    echo "Build failed"
-    rm -rf out/outputs/${PHONE}/*
-else
-    echo "Build succesful"
-    cp out/arch/arm64/boot/Image.gz-dtb out/outputs/${PHONE}/SE/Image.gz-dtb
-    
     #NSE
     cp arch/arm64/boot/dts/qcom/SE_NSE/NSE/* arch/arm64/boot/dts/qcom/
     Build
@@ -99,7 +81,27 @@ else
         echo "Build succesful"
         cp out/arch/arm64/boot/Image.gz-dtb out/outputs/${PHONE}/NSE/Image.gz-dtb
     fi
-fi
+
+#Anykernel 
+if [ ! -d "AnyKernel3" ]; then
+            git clone -q https://github.com/diyantika/AnyKernel3.git -b Dipper-SE AnyKernel3
+        fi
+        
+Zipping () {
+       ZIPNAME="${PHONE}.zip"
+       cd AnyKernel3
+        git checkout Dipper-SE &> /dev/null
+        zip -r9 "../$ZIPNAME" * -x .git README.md *placeholder
+        cd ..
+        #Pindah Zip
+        mv "$ZIPNAME" zone_dipper/
+       }
+
+#NSE
+cp out/outputs/${PHONE}/NSE/Image.gz-dtb AnyKernel3/
+Zipping "NSE"
+
+rm -rf AnyKernel3/
 
 BUILD_END=$(date +"%s")
 DIFF=$(($BUILD_END - $BUILD_START))
