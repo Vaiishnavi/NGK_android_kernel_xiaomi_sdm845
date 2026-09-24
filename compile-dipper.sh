@@ -5,6 +5,9 @@
 # KernelSu
 curl -LSs "https://raw.githubusercontent.com/ReSukiSU/ReSukiSU/main/kernel/setup.sh" | bash
 
+# NoMount
+curl https://raw.githubusercontent.com/maxsteeel/nomount/refs/heads/dev/kernel/setup.sh | bash -
+
 # Cleaning
 #rm -rf out
 #make clean
