@@ -15,6 +15,11 @@
 #include <linux/syscalls.h>
 #include <linux/pagemap.h>
 
+#ifdef CONFIG_KSU_SUSFS_SUS_KSTAT
+#include <linux/susfs_def.h>
+#include <linux/susfs.h>
+#endif
+
 #include <asm/uaccess.h>
 #include <asm/unistd.h>
 
