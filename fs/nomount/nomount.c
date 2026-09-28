@@ -608,13 +608,13 @@ static ssize_t nm_listxattr(struct dentry *dentry, char *buffer, size_t size)
     return r_inode->i_op->listxattr(info->r_path.dentry, buffer, size);
 }
 
-#if LINUX_VERSION_CODE < KERNEL_VERSION(4, 11, 0)
+#if LINUX_VERSION_CODE < KERNEL_VERSION(4, 9, 0)
 static int nm_getattr(struct vfsmount *mnt, struct dentry *dentry, struct kstat *stat)
 #else
 static int nm_getattr(IDMAP_ARG const struct path *path, struct kstat *stat, u32 request_mask, unsigned int query_flags)
 #endif
 {
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 11, 0)
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 9, 0)
     struct dentry *dentry = path->dentry;
 #endif
     struct inode *v_inode = d_backing_inode(dentry);
@@ -629,10 +629,8 @@ static int nm_getattr(IDMAP_ARG const struct path *path, struct kstat *stat, u32
         generic_fillattr(IDMAP_CALL v_inode, stat);
 #endif
     else
-#if LINUX_VERSION_CODE < KERNEL_VERSION(4, 11, 0)
+#if LINUX_VERSION_CODE < KERNEL_VERSION(4, 9, 0)
         res = vfs_getattr_nosec(&info->r_path, stat);
-#else
-        res = vfs_getattr_nosec(&info->r_path, stat, request_mask, query_flags);
 #endif
 
     if (likely(res == 0)) {
