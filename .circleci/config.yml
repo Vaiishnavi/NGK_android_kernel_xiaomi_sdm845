@@ -10,6 +10,8 @@ jobs:
            git config --global user.email "${email}"
            git config --global color.ui false
            git clone --depth=1 https://github.com/${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME} -b ${CIRCLE_BRANCH} .
+           git submodule sync --recursive
+           git submodule update --init --recursive --depth=1
 
       - restore_cache:
           key: clang-toolchain-v1-clang
